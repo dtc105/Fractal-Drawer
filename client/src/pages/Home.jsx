@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { addStyles, EditableMathField } from "react-mathquill";
+import { sendToServer } from "../lib/api.js";
 import Plane from "../components/Plane";
 
 function Home() {
@@ -13,10 +14,12 @@ function Home() {
 		xMax: 1,
 		yMax: 1
 	});
+    const [response, setResponse] = useState(null);
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-        console.log({expression: expression, limits: planeLimits});
+        const res = await sendToServer(expression, planeLimits);
+        setResponse(res);
     }
     
     return (
@@ -43,7 +46,7 @@ function Home() {
                 </button>
             </form>
             
-            <Plane limits={planeLimits} setLimits={setPlaneLimits} />
+            <Plane limits={planeLimits} setLimits={setPlaneLimits} response={response} />
 
             <form 
                 className="flex gap-2"

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-function Plane({limits, setLimits}) {
+function Plane({limits, setLimits, response}) {
 	
 	const planeRef = useRef();
 	const containerRef = useRef();
