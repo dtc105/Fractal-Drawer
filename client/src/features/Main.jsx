@@ -5,7 +5,7 @@ import NotFound from "../pages/NotFound.jsx"
 
 function Main() {
     return (
-        <main className="m-4">
+        <main className="m-4 h-3/4">
             <Router>
                 <Routes>
                     <Route path="/" Component={Home} />
