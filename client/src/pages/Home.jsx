@@ -13,8 +13,8 @@ function Home() {
     }
     
     return (
-        <div className="">
-            <form action="" className="w-full flex gap-4">
+        <div className="w-full h-full flex flex-col gap-8 justify-center items-center">
+            <form action="" className="w-full flex gap-4 justify-center">
                 <fieldset className="w-1/2">
                     <EditableMathField
                         latex={expression}
@@ -33,7 +33,9 @@ function Home() {
                     Submit
                 </button>
             </form>
-            <Plane />
+            <div className="grid place-content-center">
+                <Plane />
+            </div>
         </div>
     );
 }
