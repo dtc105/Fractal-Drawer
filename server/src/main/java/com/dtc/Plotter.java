@@ -2,25 +2,23 @@ package com.dtc;
 
 import java.awt.image.BufferedImage;
 import java.awt.Color;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.time.LocalDateTime;
+import org.nfunk.jep.type.Complex;
 
 public class Plotter {
     private int width, height;
     private double xMin, yMin, xMax, yMax;
-    public BufferedImage canvas;
+    private BufferedImage canvas;
+    private Evaluator evaluator;
 
     private long startTime;
     private long checkpointTime;
     private int checkpointCount;
 
-    public Plotter(int width, int height, double xMin, double yMin, double xMax, double yMax) {
+    public Plotter(String expression, int width, int height, double xMin, double yMin, double xMax, double yMax) {
         this.width = width;
         this.height = height;
         this.xMin = xMin;
@@ -28,6 +26,7 @@ public class Plotter {
         this.xMax = xMax;
         this.yMax = yMax;
         this.canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        this.evaluator = new Evaluator(expression);
     }
 
     public long startTimer() {
@@ -64,68 +63,42 @@ public class Plotter {
         return elapsedTime;
     }
 
-    public void export() {
-        String imagesDirectoryPath = "images";
-        Path imagesDirectory = Paths.get(imagesDirectoryPath);
-
-        String textFilePath = "images/info.txt";
-        Path textFile = Paths.get(textFilePath);
-
+    public byte[] export() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            Files.createDirectories(imagesDirectory);
-        } catch (IOException err) {
-            System.err.println(err);
-        }
-
-        try {
-            ImageIO.write(this.canvas, "png", new File(imagesDirectoryPath + "/Fractal " + getTimeString() + ".png"));
-
-            String info = "Fractal " + getTimeString() + ".png : " + xMin + " + " + yMin + "i -> " + xMax + " + " + yMax + "i";
-            Files.write(textFile, info.getBytes(), StandardOpenOption.APPEND);
-        } catch (IOException err) {
-            System.err.println(err);
+            ImageIO.write(canvas, "png", baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            return new byte[0];
         }
     }
 
-    public BufferedImage Mandelbrot(int maxIterations, boolean hasColor) {
-        // For each pixel (i,j)
-        for (int j = 0; j < this.height; j++) {
-            for (int i = 0; i < this.width; i++) {
-
-                // Set x and y to be proportional to the displayed section
-                double x = this.xMin + i * (this.xMax - this.xMin) / this.width;
-                double y = this.yMin + j * (this.yMax - this.yMin) / this.height;
-
-                // Iterate over the mandelbrot sequence
-                int iterations = getMandelbrotIterations(x, y, maxIterations);
+    public void draw(int maxIterations, double threshold, boolean hasColor) {
+        for (int j = 0; j < height; j++) {  // Iterate over every row
+            for (int i = 0; i < width; i++) {   // Iterate over every cell in a row
+                int iterations = getIterations(i, j, maxIterations, threshold);
                 int color = getColor(iterations, maxIterations, hasColor);
-                drawPixel(i, this.height - j - 1, color);
+                drawPixel(i, j, color);
             }
         }
-
-        return this.canvas;
     }
 
-    private int getMandelbrotIterations(double x, double y, int maxIterations) {
-        double x0 = x;
-        double y0 = y;
+    private int getIterations(int i, int j, int maxIterations, double threshold) {
+        double x = this.xMin + i * (this.xMax - this.xMin) / this.width;
+        double y = this.yMax - j * (this.yMax - this.yMin) / this.height;
 
-        for (int k = 1; k <= maxIterations; k++) {
+        for (int iter = 1; iter < maxIterations; iter++) {  // Repeat until escape threshold is broken
 
-            // If |z| > 2 then draw pixel based on how long it took and go to next
-            if (x * x + y * y >= 4) {
-                return k;
-            }
-
-            // If |z| <= 2 then calculate next value
-            double xNext = x * x - y * y + x0;
-            double yNext = 2 * x * y + y0;
-
-            x = xNext;
-            y = yNext;
+            if (x * x + y * y > threshold * threshold) {
+                return iter;
+            }    
+            
+            Complex next = evaluator.evaluateComplexExpression(x, y);
+            x = next.re();
+            y = next.im();
         }
 
-        // If |z| <= 2 after maxIterations iterations then draw the pixel as black
         return 0;
     }
 

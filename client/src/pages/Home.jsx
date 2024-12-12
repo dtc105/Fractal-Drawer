@@ -18,7 +18,9 @@ function Home() {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        console.log(expression);
         const res = await sendToServer(expression, planeLimits);
+        console.log(res);
         setResponse(res);
     }
     

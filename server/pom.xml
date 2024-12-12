@@ -37,6 +37,26 @@
             <artifactId>jlatexmath</artifactId>
             <version>1.0.7</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.objecthunter</groupId>
+            <artifactId>exp4j</artifactId>
+            <version>0.4.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.scijava/jep -->
+        <dependency>
+            <groupId>org.scijava</groupId>
+            <artifactId>jep</artifactId>
+            <version>2.4.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
