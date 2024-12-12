@@ -5,6 +5,7 @@ import java.util.Map;
 
 // import org.scilab.forge.jlatexmath.TeXFormula;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/evaluate")
@@ -33,9 +34,20 @@ public class Controller {
 
             plotter.stopTimer();
 
-            return Base64.getEncoder().encodeToString(res);
+            
+            return ok(Base64.getEncoder().encodeToString(res));
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return fail("Error: " + e.getMessage());
         }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    private String ok(String res) {
+        return res;
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    private String fail(String res) {
+        return res;
     }
 }

@@ -14,7 +14,22 @@ public class Evaluator {
         this.parser.addComplex();
         this.parser.addVariable("z", new Complex(0,0));
         this.parser.addVariable("c", new Complex(0,0));
-        this.parser.parseExpression(latex.replace("\\", ""));
+        this.parser.parseExpression(parseLatex(latex));
+    }
+
+    private String parseLatex(String latex) {
+        return latex
+            .replace("\\left(", "(")
+            .replace("\\right)", ")")
+            .replace("\\cdot", "*")
+            .replace("\\^", "**")
+            .replaceAll("\\\\frac\\{(.*?)\\}\\{(.*?)\\}", "($1)/($2)")
+            .replaceAll("\\\\sqrt\\{(.*?)\\}", "sqrt($1)")
+            .replace("\\sin", "sin")
+            .replace("\\cos", "cos")
+            .replace("\\tan", "tan")
+            .replace("\\pi", "pi")
+            .replace("\\", "");
     }
 
     public Complex evaluateComplexExpression(double x, double y, double x0, double y0) {
