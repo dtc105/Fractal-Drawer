@@ -1,5 +1,6 @@
 package com.dtc;
 
+import java.util.Base64;
 import java.util.Map;
 
 // import org.scilab.forge.jlatexmath.TeXFormula;
@@ -11,22 +12,30 @@ import org.springframework.web.bind.annotation.*;
 public class Controller {
 
     @PostMapping
-    public byte[] evaluateLatex(@RequestBody Request req) {
+    public String evaluateLatex(@RequestBody Request req) {
+        System.out.println("Request received: " + req);
         try {
             String latex = req.getLatex();
             Map<String, Double> limits = req.getLimits();
+            Map<String, Integer> dimensions = req.getDimensions();
+            double detail = req.getDetail(); //* Ignore for now
+            int iterations = req.getIterations();
 
-            Plotter plotter = new Plotter(latex, 100, 100, limits.get("xMin"), limits.get("yMin"), limits.get("xMax"), limits.get("yMax"));
+            Plotter plotter = new Plotter(latex, (int) (detail * dimensions.get("width")), (int)(detail * dimensions.get("height")), limits.get("xMin"), limits.get("yMin"), limits.get("xMax"), limits.get("yMax"));
 
-            plotter.draw(100, 2, true);
+            plotter.startTimer();
+
+            plotter.draw(iterations, 2, true, detail);
+
+            plotter.checkpoint();
 
             byte[] res = plotter.export();
 
-            return res;
-            // return "Received: " + formula;
+            plotter.stopTimer();
+
+            return Base64.getEncoder().encodeToString(res);
         } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            return new byte[0];
+            return "Error: " + e.getMessage();
         }
     }
 }

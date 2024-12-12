@@ -1,1 +1,7 @@
+com\dtc\Plotter.class
 Complex.class
+com\dtc\Application.class
+com\dtc\Request.class
+com\dtc\Controller.class
+com\dtc\Evaluator.class
+com\dtc\Main.class

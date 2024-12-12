@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
-function Plane({limits, setLimits, response}) {
+function Plane({limits, setLimits, dimensions, setDimensions, response}) {
 	
 	const planeRef = useRef();
 	const containerRef = useRef();
-	const [height, setHeight] = useState(150);
 	const [width, setWidth] = useState(150);
+	const [height, setHeight] = useState(150);
 
 	const offsetRef = useRef({x:0, y:0});				// Used for calculating 
 	const [offset, setOffset] = useState({x:0, y:0});	// Used for visual
@@ -23,7 +23,7 @@ function Plane({limits, setLimits, response}) {
 	
 	function handleMouseMove(e) {
 		if (isDragging) {
-			let dx = 2 * (e.clientX - startMousePos.x) / planeRef.current.getBoundingClientRect().width;
+			let dx = 2 * (startMousePos.x - e.clientX) / planeRef.current.getBoundingClientRect().width;
 			let dy = 2 * (e.clientY - startMousePos.y) / planeRef.current.getBoundingClientRect().height;
 
 			offsetRef.current = {
@@ -104,9 +104,19 @@ function Plane({limits, setLimits, response}) {
 	}, [isDragging]);
 
 	useEffect(() => {
+		if (dimensions && setDimensions) {
+			setDimensions({width: width, height: height});
+		}
+	}, [width, height]);
+
+	useEffect(() => {
 		offsetRef.current = {x: 0, y:0};
 		setOffset({x: 0, y:0})
 	}, [limits]);
+
+	useEffect(() => {
+		response && console.log(response);
+	}, [response]);
 	
 	return (
 		<div className="flex flex-col flex-1 w-full h-full" ref={containerRef}>
@@ -125,7 +135,11 @@ function Plane({limits, setLimits, response}) {
 				onMouseDown={handleMouseDown}
 				onWheel={handleScroll}
 			>
-
+				{
+					response && (
+						<img src={`data:image/png;base64,${response.data}`} alt="results" />
+					)
+				}
 			</div>
 			<div className="grid lg:grid-cols-[auto_auto_auto] grid-cols-3 w-fit m-auto">
 				<span>{`${Math.round(100 * (limits.xMin + offset.x)) / 100}+${Math.round(100 * (limits.yMin + offset.y)) / 100}i`}</span>
